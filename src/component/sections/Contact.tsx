@@ -3,6 +3,7 @@
 
 import { useState, FormEvent, ChangeEvent, InputEvent } from "react";
 import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
+import Swal from "sweetalert2";
 import axios from "@/lib/Axios";
 
 export default function Contact() {
@@ -29,7 +30,23 @@ export default function Contact() {
         ...formData,
         recaptchaToken: token,
       });
+      if (response.status !== 200) {
+        Swal.fire({
+          icon: "error",
+          title: "Gagal mengirim pesan",
+        });
+      }
+      Swal.fire({
+        icon: "success",
+        title: "Pesan terkirim!",
+        text: "Terima kasih telah menghubungi kami. Kami akan segera merespons.",
+      });
       console.log(response);
+      setFormData({
+        name: "",
+        email: "",
+        description: "",
+      });
     } catch (error) {
       setMessage("Gagal mengirim pesan");
     } finally {
@@ -38,7 +55,7 @@ export default function Contact() {
   };
 
   return (
-    <section id="contact" className="py-32">
+    <section id="contact" className="relative py-32">
       <div className="max-w-xl mx-auto px-6 text-center">
         <h3 className="text-3xl font-bold mb-4" data-aos="fade-up">
           Let's Build Together
@@ -57,6 +74,19 @@ export default function Contact() {
           data-aos-delay="200"
           onSubmit={handleSubmit}
         >
+          {loading && (
+            <div className="absolute opacity-50 bg-black w-full h-full z-2">
+              <div
+                className="flex justify-center items-center h-full"
+                role="status"
+                aria-live="polite"
+              >
+                <div className="animate-spin ease-linear rounded-full border-8 border-t-8 border-gray-200 border-t-blue-500 h-16 w-16"></div>
+                <span className="sr-only">Loading…</span>
+              </div>
+            </div>
+          )}
+
           <input
             type="text"
             placeholder="Your Name"
