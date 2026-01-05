@@ -5,8 +5,23 @@ import prisma from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { name, email, description } = body;
+    const { name, email, description, recaptchaToken } = body;
+    const verifyResponse = await fetch(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+      { method: "POST" }
+    );
+    const verifyData = await verifyResponse.json();
 
+    if (!verifyData.success || verifyData.score < 0.5) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "reCAPTCHA verification failed",
+        },
+        { status: 400 }
+      );
+    }
+    console.log("reCAPTCHA Score:", verifyData.score);
     // Validasi manual (atau pakai jsonSchema di model)
     if (!name || !email || !description) {
       return NextResponse.json(

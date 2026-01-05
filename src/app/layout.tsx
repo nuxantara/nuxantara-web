@@ -4,7 +4,7 @@ import NavBar from "@/component/layout/NavBar";
 import Footer from "@/component/layout/Footer";
 import { Inter } from "next/font/google";
 import AOSInit from "@/lib/AOSInit";
-
+import RecaptchaProvider from "@/component/ReChaptcha";
 const inter = Inter({
   subsets: ["latin"],
   weight: ["300", "400", "600", "700"],
@@ -27,10 +27,12 @@ export default function RootLayout({
       <body
         className={`${inter.variable} antialiased bg-[#0B1220] text-[#E5E7EB]`}
       >
-        <AOSInit />
-        <NavBar />
-        {children}
-        <Footer />
+        <RecaptchaProvider>
+          <AOSInit />
+          <NavBar />
+          {children}
+          <Footer />
+        </RecaptchaProvider>
       </body>
     </html>
   );

@@ -2,9 +2,11 @@
 "use client";
 
 import { useState, FormEvent, ChangeEvent, InputEvent } from "react";
+import { useGoogleReCaptcha } from "react-google-recaptcha-v3";
 import axios from "@/lib/Axios";
 
 export default function Contact() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -16,10 +18,17 @@ export default function Contact() {
   const handleSubmit = async (e: ChangeEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
-
+    if (!executeRecaptcha) {
+      console.log("reCAPTCHA belum siap");
+      return;
+    }
     try {
+      const token = await executeRecaptcha("submit_form");
       // Kirim ke API (bisa pakai EmailJS, Resend, atau API sendiri)
-      const response = await axios.post("/api/contact", formData);
+      const response = await axios.post("/api/contact", {
+        ...formData,
+        recaptchaToken: token,
+      });
       console.log(response);
     } catch (error) {
       setMessage("Gagal mengirim pesan");
